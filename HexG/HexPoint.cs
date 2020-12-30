@@ -1,66 +1,45 @@
 ﻿using System;
-using System.Numerics;
+using System.Collections.Generic;
+using System.Text;
 
 namespace HexG
 {
     /// <summary>
-    /// Represents a hex vector, which is a linear combination of some hex-grid basis vectors (XAxis, YAxis, and ZAxis).
-    /// XAxis + YAxis = ZAxis must be true for the basis vectors.
-    /// This means each HexVec belongs to an equivalence class of the form: (x - c, y - c, c) where c is any real number.
-    /// When the c is zero, we call this a standard HexVec.
-    /// 
-    /// The third value is included to allow for more convinient specification, and to allow the minimum manhattan distance
-    /// to always be expressible.
+    /// Same as <see cref="HexVec"/>, but with integer values.
     /// </summary>
-    public struct HexVec
+    public struct HexPoint
     {
-        public float X, Y, Z;
+        public int X, Y, Z;
 
         /// <summary>
-        /// Construct a new HexVec with the given values and basis.
+        /// Construct a new HexPoint with the given values and basis.
         /// If <paramref name="basis"/> is null, then <see cref="HexBasis.Standard"/> will be used.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
         /// <param name="basis"></param>
-        public HexVec(float x = 0, float y = 0, float z = 0)
+        public HexPoint(int x = 0, int y = 0, int z = 0)
         {
             X = x;
             Y = y;
             Z = z;
         }
 
-        public HexVec(Vector3 p)
+        public HexVec ToVec()
         {
-            X = p.X;
-            Y = p.Y;
-            Z = p.Z;
-        }
-    
-        /// <summary>
-        /// Return the straight line distance, given a basis.
-        /// </summary>
-        /// <param name="basis"></param>
-        /// <returns></returns>
-        public float Distance(HexBasis basis)
-        {
-            var a = basis.X * X;
-            var b = basis.Y * Y;
-            var c = basis.Z * Z;
-
-            return (a + b + c).Length();
+            return new HexVec(X, Y, Z);
         }
 
         /// <summary>
         /// The sum of the absolute values of each coordinate.
         /// Notably this is not necessarily the minimum! Use <see cref="Minimize"/> to ensure min.
         /// </summary>
-        public float ManhattanDistance() => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public int ManhattanDistance() => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
 
         public override bool Equals(object obj)
         {
-            if (!(obj is HexVec v))
+            if (!(obj is HexPoint v))
                 return false;
 
             var a = Standardized;
@@ -80,8 +59,8 @@ namespace HexG
         }
 
         /// <summary>
-        /// Standardize this HexVec.
-        /// A Standard HexVec is one where z == 0.
+        /// Standardize this HexPoint.
+        /// A Standard HexPoint is one where z == 0.
         /// </summary>
         public void Standardize()
         {
@@ -91,11 +70,11 @@ namespace HexG
         }
 
         /// <summary>
-        /// Return a new HexVec which has been standardized.
-        /// A Standard HexVec is one where z == 0.
+        /// Return a new HexPoint which has been standardized.
+        /// A Standard HexPoint is one where z == 0.
         /// </summary>
         /// <returns></returns>
-        public HexVec Standardized
+        public HexPoint Standardized
         {
             get
             {
@@ -107,7 +86,7 @@ namespace HexG
         }
 
         /// <summary>
-        /// Makes this the HexVec the smallest mannhattan distance from this HexVec's equivalence class.
+        /// Makes this the HexPoint the smallest mannhattan distance from this HexPoint's equivalence class.
         /// </summary>
         public void Minimize()
         {
@@ -118,7 +97,7 @@ namespace HexG
             Z = minimized.Z;
         }
 
-        public HexVec Minimized
+        public HexPoint Minimized
         {
             get
             {
@@ -126,9 +105,9 @@ namespace HexG
                 //       Try to find the two axis the target is between. Those two will be the non-zero axis.
 
                 // One of the following will be the min.
-                var zeroX = new HexVec(0, Y - X, Z + X);
-                var zeroY = new HexVec(X - Y, 0, Z + Y);
-                var zeroZ = new HexVec(X + Z, Y + Z, 0);
+                var zeroX = new HexPoint(0, Y - X, Z + X);
+                var zeroY = new HexPoint(X - Y, 0, Z + Y);
+                var zeroZ = new HexPoint(X + Z, Y + Z, 0);
 
                 var zeroXDist = zeroX.ManhattanDistance();
                 var zeroYDist = zeroY.ManhattanDistance();
@@ -150,13 +129,13 @@ namespace HexG
                 }
             }
         }
-
+        
         /// <summary>
         /// Return the value of this in the specified direction.
         /// </summary>
         /// <param name="direction"></param>
         /// <returns></returns>
-        public float InDirection(Direction direction)
+        public int InDirection(Direction direction)
         {
             switch (direction)
             {
@@ -177,31 +156,30 @@ namespace HexG
             }
         }
 
-        public static HexVec operator +(HexVec a, HexVec b)
+        public static HexPoint operator +(HexPoint a, HexPoint b)
         {
-            return new HexVec(
+            return new HexPoint(
                 a.X + b.X,
                 a.Y + b.Y,
                 a.Z + b.Z);
         }
 
-        public static HexVec operator -(HexVec a, HexVec b)
+        public static HexPoint operator -(HexPoint a, HexPoint b)
         {
-            return new HexVec(
+            return new HexPoint(
                 a.X - b.X,
                 a.Y - b.Y,
                 a.Z - b.Z);
         }
 
-        public static HexVec operator *(HexVec v, float s)
+        public static HexPoint operator *(HexPoint v, int s)
         {
-            return new HexVec(s * v.X, s * v.Y, s * v.Z);
+            return new HexPoint(s * v.X, s * v.Y, s * v.Z);
         }
 
-        public static HexVec operator *(float s, HexVec v) => v * s;
-        public static HexVec operator /(HexVec v, float s) => v * (1 / s);
+        public static HexPoint operator *(int s, HexPoint v) => v * s;
 
-        public static bool operator ==(HexVec a, HexVec b) => a.Equals(b);
-        public static bool operator !=(HexVec a, HexVec b) => !a.Equals(b);
+        public static bool operator ==(HexPoint a, HexPoint b) => a.Equals(b);
+        public static bool operator !=(HexPoint a, HexPoint b) => !a.Equals(b);
     }
 }

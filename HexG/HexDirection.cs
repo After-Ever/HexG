@@ -7,11 +7,11 @@ namespace HexG
     public enum Direction
     {
         Right,      // +X
-        Left,       // -X
-        Up,         // +Y
-        Down,       // -Y
         Forward,    // +Z
+        Up,         // +Y
+        Left,       // -X
         Backwards,  // -Z
+        Down,       // -Y
     }
 
     public static class HexDirection
@@ -24,22 +24,22 @@ namespace HexG
         /// <param name="basis">The basis to build the HexVec off of. If null is provided,
         /// will use <see cref="HexBasis.Standard"/>.</param>
         /// <returns></returns>
-        public static HexVec ToHexVec(this Direction direction, HexBasis? basis = null)
+        public static HexPoint ToHexPoint(this Direction direction)
         {
             switch (direction)
             {
                 case Direction.Right:
-                    return new HexVec(1, 0, 0, basis);
+                    return new HexPoint(1, 0, 0);
                 case Direction.Left:
-                    return new HexVec(-1, 0, 0, basis);
+                    return new HexPoint(-1, 0, 0);
                 case Direction.Up:
-                    return new HexVec(0, 1, 0, basis);
+                    return new HexPoint(0, 1, 0);
                 case Direction.Down:
-                    return new HexVec(0, -1, 0, basis);
+                    return new HexPoint(0, -1, 0);
                 case Direction.Forward:
-                    return new HexVec(0, 0, 1, basis);
+                    return new HexPoint(0, 0, 1);
                 case Direction.Backwards:
-                    return new HexVec(0, 0, -1, basis);
+                    return new HexPoint(0, 0, -1);
                 default:
                     throw new NotSupportedException("Not a valid direction");
             }

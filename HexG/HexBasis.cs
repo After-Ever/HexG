@@ -5,7 +5,6 @@ using System.Text;
 
 namespace HexG
 {
-
     //TODO: Add a check to ensure a given basis supports the required equality.
     public struct HexBasis
     {
