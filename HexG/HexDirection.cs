@@ -16,6 +16,8 @@ namespace HexG
 
     public static class HexDirection
     {
+        public static Direction[] Values = (Direction[])Enum.GetValues(typeof(Direction));
+
         /// <summary>
         /// Returns the <see cref="HexVec"/> which represents the given direction,
         /// wrt <paramref name="basis"/>.

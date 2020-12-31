@@ -13,6 +13,8 @@ namespace HexGTest
         public float distance;
         public float manhattanDistance;
 
+        public static HexBasis testBasis = HexBasis.Standard;
+
         // TODO: Add much more test data!
         public static HexVecTestData[] testData =
         {

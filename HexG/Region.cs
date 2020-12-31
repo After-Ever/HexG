@@ -21,7 +21,7 @@ namespace HexG
         int MaxInDirection(Direction direction);
     }
 
-    public struct Region : IRegion
+    public class Region : IRegion
     {
         HashSet<HexPoint> indices;
 

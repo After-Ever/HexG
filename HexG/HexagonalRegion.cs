@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HexG
 {
-    public struct HexagonalRegion : IRegion
+    public class HexagonalRegion : IRegion
     {
         public int Count => 1 + 3 * radius * (radius + 1);
         public bool IsReadOnly => true;
@@ -152,7 +152,7 @@ namespace HexG
             int curI;
             HexPoint curPoint;
 
-            public HexPoint Current => curI != -1 ? curPoint : throw new Exception();
+            public HexPoint Current => curI != -1 || curR != 0 ? curPoint : throw new Exception();
             object IEnumerator.Current => Current;
 
             public Enumerator(HexagonalRegion region)
@@ -165,29 +165,33 @@ namespace HexG
 
             public bool MoveNext()
             {
-                ++curI;
-
-                // Don't move if on the first index.
-                if (curI > 0)
+                var lastI = curI;
+                var lastR = curR;
+                
+                if (curR == 0)
                 {
-                    var directions = (Direction[])Enum.GetValues(typeof(Direction));
-                    var moveDir = directions[(curI - 1) / curR].ToHexPoint();
+                    if (++curI == 1)
+                    {
+                        if (region.radius == 0)
+                            return false;
 
-                    curPoint += moveDir;
+                        curI = 0;
+                        curR = 1;
+                    }
+                }
+                else
+                {
+                    if (++curI == curR * 6)
+                    {
+                        curI = 0;
+
+                        if (++curR > region.radius)
+                            return false;
+                    }
                 }
 
-                if (curI > curR * 6)
-                {
-                    curI = -1;
-                    ++curR;
 
-                    var directions = (Direction[])Enum.GetValues(typeof(Direction));
-                    curPoint += directions[4].ToHexPoint();
-                }
-
-                if (curR > region.radius)
-                    return false;
-
+                curPoint = AdvancePoint(curPoint, lastI, lastR);
                 return true;
             }
 
@@ -196,6 +200,19 @@ namespace HexG
                 curPoint = region.offset;
                 curR = 0;
                 curI = -1;
+            }
+
+            HexPoint AdvancePoint(HexPoint point, int lastIndex, int lastRadius)
+            {
+                // If lastRadius is 0, then this is the first advance from the center, so just out-shift.
+                if (lastRadius == 0)
+                    return lastIndex == -1 ? point : point + HexDirection.Values[4].ToHexPoint();
+
+                // If the last index completed the last perimeter, move back to the start of the perimeter, and out-shift.
+                if (lastIndex + 1 == lastRadius * 6)
+                    return point + HexDirection.Values[5].ToHexPoint() + HexDirection.Values[4].ToHexPoint();
+
+                return point + HexDirection.Values[lastIndex / lastRadius].ToHexPoint();
             }
         }
     }
