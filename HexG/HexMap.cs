@@ -8,12 +8,17 @@ namespace HexG
 
     public struct Cell<T>
     {
-        HexPoint index;
-        T value;
+        public HexPoint index;
+        public T value;
     }
 
-    public interface IHexMap<T>
+    public interface IHexMap<T> : IEnumerable<Cell<T>>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns>The data held at <paramref name="index"/>, or null if that cell is empty.</returns>
         T this[HexPoint index] { get; set; }
 
         bool IsEmpty { get; }
