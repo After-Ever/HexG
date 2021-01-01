@@ -1,14 +1,22 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace HexG
 {
-    public class EntityHexMap
+    public class EntityHexMap : IEnumerable<MapEntity>
     {
         IHexMap<MapEntity> baseMap;
         IRegion allowedRegion;
         IRegion disallowedRegion;
+
+        public MapEntity this[HexPoint index]
+        {
+            get => baseMap[index];
+            // TODO Should this have a setter?
+            set => Add(value, index);
+        }
 
         /// <summary>
         /// Create a new, empty <see cref="EntityHexMap"/>.
@@ -175,5 +183,11 @@ namespace HexG
 
             baseMap.Clear();
         }
+
+        public IEnumerator<MapEntity> GetEnumerator()
+            => baseMap.Select((cell) => cell.value).GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
     }
 }

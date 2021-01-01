@@ -5,14 +5,19 @@ using System.Linq;
 
 namespace HexG
 {
-    public class HashHexMap<T> : IHexMap<T>
+    public class HashHexMap<T> : IHexMap<T> where T : class
     {
-        // TODO Null values should not be represented... Be sure to filter them out if they show up in count and such...
         Dictionary<HexPoint, T> map = new Dictionary<HexPoint, T>();
 
         public T this[HexPoint index]
         {
-            get => map[index];
+            get
+            {
+                T value;
+                if (map.TryGetValue(index, out value))
+                    return value;
+                return null;
+            }
             set
             {
                 if (value == null)
@@ -35,12 +40,12 @@ namespace HexG
 
         public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices)
             => indices
-            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .Select((i) => new Cell<T> { index = i, value = this[i] })
             .Where((cell) => predicate(cell));
 
         public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IRegion searchRegion)
             => searchRegion
-            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .Select((i) => new Cell<T> { index = i, value = this[i] })
             .Where((cell) => predicate(cell));
 
         public void Clear()
@@ -48,7 +53,7 @@ namespace HexG
 
         public Cell<T> FirstWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices)
             => indices
-            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .Select((i) => new Cell<T> { index = i, value = this[i] })
             .First((cell) => predicate(cell));
 
         public IHexMap<T> GetRegion(IRegion region)
@@ -63,7 +68,7 @@ namespace HexG
             return newMap;
         }
 
-        public IHexMap<K> Map<K>(Converter<T, K> converter)
+        public IHexMap<K> Map<K>(Converter<T, K> converter) where K : class
         {
             var newMap = new HashHexMap<K>();
             var cellsToAdd = map
@@ -96,7 +101,7 @@ namespace HexG
             {
                 var pos = cell.index + (offset ?? HexPoint.Zero);
 
-                if (!setEmpty && map[pos] == null)
+                if (!setEmpty && this[pos] == null)
                     continue;
 
                 this[pos] = cell.value;

@@ -13,7 +13,7 @@ namespace HexG
         public T value;
     }
 
-    public interface IHexMap<T> : IEnumerable<Cell<T>>
+    public interface IHexMap<T> : IEnumerable<Cell<T>> where T : class
     {
         /// <summary>
         /// 
@@ -82,7 +82,7 @@ namespace HexG
         /// <typeparam name="K"></typeparam>
         /// <param name="converter"></param>
         /// <returns></returns>
-        IHexMap<K> Map<K>(Converter<T, K> converter);
+        IHexMap<K> Map<K>(Converter<T, K> converter) where K : class;
 
         /// <summary>
         /// Return a new map with just the cells in <paramref name="region"/>.
