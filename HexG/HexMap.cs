@@ -5,6 +5,7 @@ using System.Text;
 namespace HexG
 {
     public delegate T HexGeneator<T>(HexPoint index);
+    public delegate bool HexPredicate<T>(Cell<T> cell);
 
     public struct Cell<T>
     {
@@ -49,7 +50,7 @@ namespace HexG
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        IEnumerable<Cell<T>> CellsWhere(Predicate<T> predicate);
+        IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate);
 
         /// <summary>
         /// Returns all the cells referenced by <paramref name="indices"/> which pass <paramref name="predicate"/>.
@@ -58,7 +59,7 @@ namespace HexG
         /// <param name="predicate"></param>
         /// <param name="indices"></param>
         /// <returns></returns>
-        IEnumerable<Cell<T>> CellsWhere(Predicate<T> predicate, IEnumerable<HexPoint> indices);
+        IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices);
 
         /// <summary>
         /// Returns all the cells within <paramref name="searchRegion"/> which pass <paramref name="predicate"/>.
@@ -66,14 +67,14 @@ namespace HexG
         /// <param name="predicate"></param>
         /// <param name="searchRegion"></param>
         /// <returns></returns>
-        IEnumerable<Cell<T>> CellsWhere(Predicate<T> predicate, IRegion searchRegion);
+        IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IRegion searchRegion);
 
         /// <summary>
         /// Return a copy of this map, clearing any cells which don't pass <paramref name="predicate"/>.
         /// </summary>
         /// <param name="predicate"></param>
         /// <returns></returns>
-        IHexMap<T> Where(Predicate<T> predicate);
+        IHexMap<T> Where(HexPredicate<T> predicate);
 
         /// <summary>
         /// Return a copy of this map, applying <paramref name="converter"/> on each cell.
@@ -95,7 +96,7 @@ namespace HexG
         /// <param name="predicate"></param>
         /// <param name="indices"></param>
         /// <returns></returns>
-        Cell<T> FirstWhere(Predicate<T> predicate, IEnumerable<HexPoint> indices);
+        Cell<T> FirstWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices);
 
         /// <summary>
         /// Clear the contents of all cells.

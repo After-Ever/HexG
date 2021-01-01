@@ -31,6 +31,8 @@ namespace HexG
             return new HexVec(X, Y, Z);
         }
 
+        public static readonly HexPoint Zero = new HexPoint();
+
         /// <summary>
         /// The sum of the absolute values of each coordinate.
         /// Notably this is not necessarily the minimum! Use <see cref="Minimize"/> to ensure min.

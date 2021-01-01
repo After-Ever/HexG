@@ -1,0 +1,129 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace HexG
+{
+    public class HashHexMap<T> : IHexMap<T>
+    {
+        // TODO Null values should not be represented... Be sure to filter them out if they show up in count and such...
+        Dictionary<HexPoint, T> map = new Dictionary<HexPoint, T>();
+
+        public T this[HexPoint index]
+        {
+            get => map[index];
+            set
+            {
+                if (value == null)
+                {
+                    // Passing null should clear the entry, if there is one.
+                    map.Remove(index);
+                    return;
+                }
+
+                map[index] = value;
+            }
+        }
+
+        public bool IsEmpty => map.Count == 0;
+
+        public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate)
+            => map
+            .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value })
+            .Where((cell) => predicate(cell));
+
+        public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices)
+            => indices
+            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .Where((cell) => predicate(cell));
+
+        public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate, IRegion searchRegion)
+            => searchRegion
+            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .Where((cell) => predicate(cell));
+
+        public void Clear()
+            => map.Clear();
+
+        public Cell<T> FirstWhere(HexPredicate<T> predicate, IEnumerable<HexPoint> indices)
+            => indices
+            .Select((i) => new Cell<T> { index = i, value = map[i] })
+            .First((cell) => predicate(cell));
+
+        public IHexMap<T> GetRegion(IRegion region)
+        {
+            var newMap = new HashHexMap<T>();
+            var cellsToAdd = map
+                .Where((kvp) => region.Contains(kvp.Key))
+                .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value });
+
+            newMap.SetCells(cellsToAdd);
+
+            return newMap;
+        }
+
+        public IHexMap<K> Map<K>(Converter<T, K> converter)
+        {
+            var newMap = new HashHexMap<K>();
+            var cellsToAdd = map
+                .Select((kvp) => new Cell<K> { index = kvp.Key, value = converter(kvp.Value) });
+
+            newMap.SetCells(cellsToAdd);
+
+            return newMap;
+        }
+
+        public void SetCells(IEnumerable<Cell<T>> cells)
+        {
+            foreach (var cell in cells)
+            {
+                this[cell.index] = cell.value;
+            }
+        }
+
+        public void SetCells(IEnumerable<HexPoint> indices, HexGeneator<T> generator)
+        {
+            foreach (var index in indices)
+            {
+                this[index] = generator(index);
+            }
+        }
+
+        public void SetCells(IHexMap<T> map, HexPoint? offset = null, bool setEmpty = true)
+        {
+            foreach (var cell in map)
+            {
+                var pos = cell.index + (offset ?? HexPoint.Zero);
+
+                if (!setEmpty && map[pos] == null)
+                    continue;
+
+                this[pos] = cell.value;
+            }
+        }
+
+        public IHexMap<T> Where(HexPredicate<T> predicate)
+        {
+            var newMap = new HashHexMap<T>();
+            var cellsToAdd = map
+                .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value })
+                .Where((cell) => predicate(cell));
+
+            newMap.SetCells(cellsToAdd);
+
+            return newMap;
+        }
+
+
+        // IEnumerable:
+
+        public IEnumerator<Cell<T>> GetEnumerator()
+            => map
+            .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value })
+            .GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+    }
+}
