@@ -40,6 +40,7 @@ namespace HexG
         public HexVec(HexBasis basis, float cartesianX, float cartesianY)
             : this(basis, new Vector2(cartesianX, cartesianY)) { }
 
+        // TODO Needs testing!
         /// <summary>
         /// Convert from a cartesian vector to a HexVec, based on <paramref name="basis"/>.
         /// </summary>
@@ -68,6 +69,9 @@ namespace HexG
         /// <returns></returns>
         public HexPoint ToNearestPoint()
             => new HexPoint((int)X, (int)Y, (int)Z);
+
+        public Vector2 ToCartesian(HexBasis basis)
+            => X * basis.X + Y * basis.Y + Z * basis.Z;
     
         /// <summary>
         /// Return the straight line distance, given a basis.

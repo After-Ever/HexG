@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace HexG
@@ -30,6 +31,9 @@ namespace HexG
         {
             return new HexVec(X, Y, Z);
         }
+
+        public Vector2 ToCartesian(HexBasis basis)
+        => X * basis.X + Y * basis.Y + Z * basis.Z;
 
         public static readonly HexPoint Zero = new HexPoint();
 
