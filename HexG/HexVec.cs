@@ -23,7 +23,6 @@ namespace HexG
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <param name="z"></param>
-        /// <param name="basis"></param>
         public HexVec(float x = 0, float y = 0, float z = 0)
         {
             X = x;
@@ -37,6 +36,38 @@ namespace HexG
             Y = p.Y;
             Z = p.Z;
         }
+
+        public HexVec(HexBasis basis, float cartesianX, float cartesianY)
+            : this(basis, new Vector2(cartesianX, cartesianY)) { }
+
+        /// <summary>
+        /// Convert from a cartesian vector to a HexVec, based on <paramref name="basis"/>.
+        /// </summary>
+        /// <param name="basis"></param>
+        /// <param name="cartesianVec"></param>
+        public HexVec(HexBasis basis, Vector2 cartesianVec)
+        {
+            var det = basis.X.X * basis.Y.Y - basis.X.Y * basis.Y.X;
+            if (det == 0)
+                throw new DivideByZeroException("Basis vectors have determinant = 0.");
+
+            var invDet = 1 / det;
+            var invXYbasisRow1 = invDet * new Vector2(basis.Y.Y, -basis.Y.X);
+            var invXYbasisRow2 = invDet * new Vector2(basis.X.Y, basis.X.X);
+
+            var hexVec = new Vector2(Vector2.Dot(invXYbasisRow1, cartesianVec), Vector2.Dot(invXYbasisRow2, cartesianVec));
+
+            X = hexVec.X;
+            Y = hexVec.Y;
+            Z = 0;
+        }
+
+        /// <summary>
+        /// Rounds all values towards zero.
+        /// </summary>
+        /// <returns></returns>
+        public HexPoint ToNearestPoint()
+            => new HexPoint((int)X, (int)Y, (int)Z);
     
         /// <summary>
         /// Return the straight line distance, given a basis.
