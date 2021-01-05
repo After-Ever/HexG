@@ -5,29 +5,22 @@ using System.Linq;
 
 namespace HexG
 {
-    public class EntityHexMap : IEnumerable<MapEntity>
+    public class EntityHexMap<T> : IReadOnlyHexMap<EntityHexMapHandle<T>> where T : class
     {
-        IHexMap<MapEntity> baseMap;
-        IRegion allowedRegion;
-        IRegion disallowedRegion;
-
-        public MapEntity this[HexPoint index]
-        {
-            get => baseMap[index];
-            // TODO Should this have a setter?
-            set => Add(value, index);
-        }
-
+        IHexMap<EntityHexMapHandle<T>> baseMap;
+        public readonly IRegion allowedRegion;
+        public readonly IRegion disallowedRegion;
+        
         /// <summary>
         /// Create a new, empty <see cref="EntityHexMap"/>.
         /// </summary>
-        /// <param name="baseMap">The base map that will be used to store the <see cref="MapEntity"/>.
+        /// <param name="baseMap">The base map that will be used to store the <see cref="T"/>.
         /// Must be empty.</param>
         /// <param name="allowedRegion">If provided, entities can only inhabit positions within this region.</param>
         /// <param name="disallowedRegion">If provided, entities cannot inhabit positions within this region.</param>
-        public EntityHexMap(IHexMap<MapEntity> baseMap, IRegion allowedRegion = null, IRegion disallowedRegion = null)
+        public EntityHexMap(IHexMap<T> baseMap, IRegion allowedRegion = null, IRegion disallowedRegion = null)
         {
-            this.baseMap = baseMap ?? throw new ArgumentNullException();
+            this.baseMap = baseMap?.Map((cell) => new EntityHexMapHandle<T>(this, cell.value, cell.index)) ?? throw new ArgumentNullException();
             this.allowedRegion = allowedRegion;
             this.disallowedRegion = disallowedRegion;
             
@@ -35,54 +28,45 @@ namespace HexG
                 throw new Exception("Base map must be empty!");
         }
 
-        /// <summary>
-        /// Add <paramref name="entity"/> to the map at <paramref name="position"/>.
-        /// </summary>
-        /// <param name="entity"></param>
-        /// <param name="position"></param>
-        /// <param name="replaced"></param>
-        /// <returns>Whether the addition was succesful. When false is returned,
-        /// <paramref name="entity"/> has not been added, and the map has not changed.</returns>
-        public bool Add(MapEntity entity, HexPoint position, out MapEntity replaced)
+        public EntityHexMapHandle<T> Add(T entity, HexPoint position, out T replaced)
         {
             if (entity == null)
                 throw new ArgumentNullException();
-            if (entity.Map != null)
-                throw new Exception("Cannot add an entity already apart of a map.");
             
             if (!(allowedRegion?.Contains(position) ?? true) 
                 || (disallowedRegion?.Contains(position) ?? false))
             {
                 replaced = null;
-                return false;
+                return null;
             }
 
-            replaced = baseMap[position];
+            replaced = baseMap[position]?.Data;
+            EntityHexMapEntity replacedEntity = null;
 
-            // Fail the addition if the target position has an entity which cannot be replaced.
-            if (!(replaced?.CanBeReplaced ?? true))
+            if (replaced != null 
+                && replaced is EntityHexMapEntity re
+                && !re.CanBeReplaced)
             {
+                replacedEntity = re;
                 replaced = null;
-                return false;
+                return null;
             }
 
-            baseMap[position] = entity;
+            var newHandle = baseMap[position] = new EntityHexMapHandle<T>(this, entity, position);
 
-            // Update the replaced.
-            replaced?.SetMap(null);
-            replaced?.WasRemoved(position);
+            replacedEntity?._Removed(position);
+            
+            if (entity is EntityHexMapEntity e)
+            {
+                e._AddedToEntityMap(newHandle);
+            }
 
-            // Update the added.
-            entity.SetMap(this);
-            entity.SetPosition(position);
-            entity.WasAdded();
-
-            return true;
+            return newHandle;
         }
 
-        public bool Add(MapEntity entity, HexPoint position)
+        public EntityHexMapHandle<T> Add(T entity, HexPoint position)
         {
-            MapEntity _;
+            T _;
             return Add(entity, position, out _);
         }
 
@@ -99,7 +83,7 @@ namespace HexG
         /// <param name="replaced"></param>
         /// <returns>Whether the move was succesful. When false is returned, the move did not occur, and
         /// the map is unchanged.</returns>
-        public bool Move(HexPoint source, HexPoint target, out MapEntity moved, out MapEntity replaced)
+        public bool Move(HexPoint source, HexPoint target, out EntityHexMapHandle<T> moved, out T replaced)
         {
             // Only check target, as if source is in an invalid region, it will be null, 
             // and the method will return false as expected.
@@ -111,13 +95,16 @@ namespace HexG
                 return false;
             }
 
-            replaced = baseMap[target];
-            
-            // Fail the move if the target position has an entity which cannot be replaced.
-            if (!(replaced?.CanBeReplaced ?? true))
+            replaced = baseMap[target]?.Data;
+            EntityHexMapEntity replacedEntity = null;
+
+            if (replaced != null
+                && replaced is EntityHexMapEntity re
+                && !re.CanBeReplaced)
             {
-                moved = null;
+                replacedEntity = re;
                 replaced = null;
+                moved = null;
                 return false;
             }
 
@@ -131,45 +118,47 @@ namespace HexG
             baseMap[source] = null;
             baseMap[target] = moved;
 
-            // Update the replaced.
-            replaced?.SetMap(null);
-            replaced?.WasRemoved(target);
+            replacedEntity?._Removed(target);
 
-            // Update the moved.
-            moved.SetPosition(target);
-            moved.WasMoved(source);
+            if (moved.Data is EntityHexMapEntity e)
+            {
+                e._Moved(source);
+            }
 
             return true;
         }
 
-        public bool Move(HexPoint source, HexPoint target, out MapEntity moved)
+        public bool Move(HexPoint source, HexPoint target, out EntityHexMapHandle<T> moved)
         {
-            MapEntity _;
+            T _;
+
             return Move(source, target, out moved, out _);
         }
 
         public bool Move(HexPoint source, HexPoint target)
         {
-            MapEntity _, __;
+            EntityHexMapHandle<T> _;
+            T __;
+
             return Move(source, target, out _, out __);
         }
 
-        public bool Remove(HexPoint position, out MapEntity removed)
+        public bool Remove(HexPoint position, out T removed)
         {
             // No need to check if position is in the allowed region.
 
-            removed = baseMap[position];
+            removed = baseMap[position]?.Data;
             baseMap[position] = null;
 
-            removed?.SetMap(null);
-            removed?.WasRemoved(position);
+            if (removed is EntityHexMapEntity e)
+                e._Removed(position);
 
             return removed != null;
         }
 
         public bool Remove(HexPoint position)
         {
-            MapEntity _;
+            T _;
             return Remove(position, out _);
         }
 
@@ -177,15 +166,44 @@ namespace HexG
         {
             foreach (var cell in baseMap)
             {
-                cell.value.SetMap(null);
-                cell.value.WasRemoved(cell.index);
+                if (cell.value.Data is EntityHexMapEntity e)
+                    e._Removed(cell.index);
             }
 
             baseMap.Clear();
         }
 
-        public IEnumerator<MapEntity> GetEnumerator()
-            => baseMap.Select((cell) => cell.value).GetEnumerator();
+
+        // IReadOnlyHexMap:
+
+        public bool IsEmpty => baseMap.IsEmpty;
+
+        EntityHexMapHandle<T> IReadOnlyHexMap<EntityHexMapHandle<T>>.this[HexPoint index]
+            => baseMap[index];
+
+        public IEnumerable<Cell<EntityHexMapHandle<T>>> CellsWhere(HexPredicate<EntityHexMapHandle<T>> predicate)
+            => baseMap.CellsWhere(predicate);
+
+        public IEnumerable<Cell<EntityHexMapHandle<T>>> CellsWhere(HexPredicate<EntityHexMapHandle<T>> predicate, IEnumerable<HexPoint> indices)
+            => baseMap.CellsWhere(predicate, indices);
+
+        public IEnumerable<Cell<EntityHexMapHandle<T>>> CellsWhere(HexPredicate<EntityHexMapHandle<T>> predicate, IRegion searchRegion)
+            => baseMap.CellsWhere(predicate, searchRegion);
+
+        public IHexMap<EntityHexMapHandle<T>> Where(HexPredicate<EntityHexMapHandle<T>> predicate)
+            => baseMap.Where(predicate);
+
+        public IHexMap<K> Map<K>(Converter<Cell<EntityHexMapHandle<T>>, K> converter) where K : class
+            => baseMap.Map(converter);
+
+        public IHexMap<EntityHexMapHandle<T>> GetRegion(IRegion region)
+            => baseMap.GetRegion(region);
+
+        public Cell<EntityHexMapHandle<T>> FirstWhere(HexPredicate<EntityHexMapHandle<T>> predicate, IEnumerable<HexPoint> indices)
+            => baseMap.FirstWhere(predicate, indices);
+
+        public IEnumerator<Cell<EntityHexMapHandle<T>>> GetEnumerator()
+            => baseMap.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();

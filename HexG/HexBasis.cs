@@ -5,18 +5,27 @@ using System.Text;
 
 namespace HexG
 {
-    //TODO: Add a check to ensure a given basis supports the required equality.
-    public struct HexBasis
+    public class HexBasis
     {
-        const float sqrt3over2 = 0.8660254037844386f;
-
         public Vector2 X, Y, Z;
 
-        public static readonly HexBasis Standard = new HexBasis
+        public HexBasis(Vector2 x, Vector2 y, Vector2 z)
         {
-            X = new Vector2(1, 0),
-            Y = new Vector2(-0.5f, sqrt3over2),
-            Z = new Vector2(0.5f, sqrt3over2)
-        };
+            // TODO: Should probably have some tolorance...
+            if (x - y != z)
+                throw new Exception("These basis vectors don't meet requirments.");
+
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        const float sqrt3over2 = 0.8660254037844386f;
+        public static readonly HexBasis Standard = new HexBasis
+        (
+            x: new Vector2(1, 0),
+            y: new Vector2(-0.5f, sqrt3over2),
+            z: new Vector2(0.5f, sqrt3over2)
+        );
     }
 }
