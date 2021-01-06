@@ -4,29 +4,12 @@ using System.Text;
 
 namespace HexG
 {
-    public abstract class EntityHexMapEntity
+    public interface IEntityHexMapEntity
     {
-        public EntityHexMapHandle Handle { get; private set; }
+        bool CanBeReplaced { get; }
 
-        public virtual bool CanBeReplaced { get => true; }
-
-        protected virtual void Added() { }
-        protected virtual void Moved(HexPoint lastPosition) { }
-        protected virtual void Removed(HexPoint lastPosition) { }
-
-        internal void _AddedToEntityMap(EntityHexMapHandle handle)
-        {
-            Handle = handle;
-            Added();
-        }
-
-        internal void _Moved(HexPoint lastPosition)
-            => Moved(lastPosition);
-
-        internal void _Removed(HexPoint lastPosition)
-        {
-            Handle = null;
-            Removed(lastPosition);
-        }
+        void Added(EntityHexMapHandle handle);
+        void Moved(HexPoint lastPosition);
+        void Removed(HexPoint lastPosition);
     }
 }

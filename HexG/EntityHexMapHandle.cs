@@ -6,7 +6,7 @@ namespace HexG
 {
     public abstract class EntityHexMapHandle
     {
-        // Map manipulation methods:
+        public abstract HexPoint Position { get; protected set; }
 
         /// <summary>
         /// Move this to <paramref name="destination"/> within the same <see cref="EntityHexMap"/>.
@@ -31,7 +31,7 @@ namespace HexG
     public class EntityHexMapHandle<T> : EntityHexMapHandle where T : class
     {
         public readonly EntityHexMap<T> Map;
-        public HexPoint Position { get; private set; }
+        public sealed override HexPoint Position { get; protected set; }
         public readonly T Data;
 
         public EntityHexMapHandle(EntityHexMap<T> map, T data, HexPoint position)

@@ -41,10 +41,10 @@ namespace HexG
             }
 
             replaced = baseMap[position]?.Data;
-            EntityHexMapEntity replacedEntity = null;
+            IEntityHexMapEntity replacedEntity = null;
 
             if (replaced != null 
-                && replaced is EntityHexMapEntity re
+                && replaced is IEntityHexMapEntity re
                 && !re.CanBeReplaced)
             {
                 replacedEntity = re;
@@ -54,11 +54,11 @@ namespace HexG
 
             var newHandle = baseMap[position] = new EntityHexMapHandle<T>(this, entity, position);
 
-            replacedEntity?._Removed(position);
+            replacedEntity?.Removed(position);
             
-            if (entity is EntityHexMapEntity e)
+            if (entity is IEntityHexMapEntity e)
             {
-                e._AddedToEntityMap(newHandle);
+                e.Added(newHandle);
             }
 
             return newHandle;
@@ -96,10 +96,10 @@ namespace HexG
             }
 
             replaced = baseMap[target]?.Data;
-            EntityHexMapEntity replacedEntity = null;
+            IEntityHexMapEntity replacedEntity = null;
 
             if (replaced != null
-                && replaced is EntityHexMapEntity re
+                && replaced is IEntityHexMapEntity re
                 && !re.CanBeReplaced)
             {
                 replacedEntity = re;
@@ -118,11 +118,11 @@ namespace HexG
             baseMap[source] = null;
             baseMap[target] = moved;
 
-            replacedEntity?._Removed(target);
+            replacedEntity?.Removed(target);
 
-            if (moved.Data is EntityHexMapEntity e)
+            if (moved.Data is IEntityHexMapEntity e)
             {
-                e._Moved(source);
+                e.Moved(source);
             }
 
             return true;
@@ -150,8 +150,8 @@ namespace HexG
             removed = baseMap[position]?.Data;
             baseMap[position] = null;
 
-            if (removed is EntityHexMapEntity e)
-                e._Removed(position);
+            if (removed is IEntityHexMapEntity e)
+                e.Removed(position);
 
             return removed != null;
         }
@@ -166,8 +166,8 @@ namespace HexG
         {
             foreach (var cell in baseMap)
             {
-                if (cell.value.Data is EntityHexMapEntity e)
-                    e._Removed(cell.index);
+                if (cell.value.Data is IEntityHexMapEntity e)
+                    e.Removed(cell.index);
             }
 
             baseMap.Clear();

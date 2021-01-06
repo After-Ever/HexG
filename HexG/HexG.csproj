@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>7.1</LangVersion>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +11,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp $(TargetPath) N:\game_development\LibraryCollection\$(TargetFileName)&#xD;&#xA;" />
+    <Exec Command="cp &quot;$(ProjectDir)$(OutDir)$(TargetName).dll&quot;  /n/game_development/LibraryCollection/&#xD;&#xA;cp &quot;$(ProjectDir)$(OutDir)$(TargetName).pdb&quot;  /n/game_development/LibraryCollection/&#xD;&#xA;cp /n/game_development/LibraryCollection/* /n/game_development/unity_projects/azure_rain_mvp/Assets/Libs/" />
   </Target>
 
 </Project>

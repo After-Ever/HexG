@@ -68,11 +68,12 @@ namespace HexG
             return newMap;
         }
 
-        public IHexMap<K> Map<K>(Converter<T, K> converter) where K : class
+        public IHexMap<K> Map<K>(Converter<Cell<T>, K> converter) where K : class
         {
             var newMap = new HashHexMap<K>();
             var cellsToAdd = map
-                .Select((kvp) => new Cell<K> { index = kvp.Key, value = converter(kvp.Value) });
+                .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value })
+                .Select((cell) => new Cell<K> { index = cell.index, value = converter(cell) });
 
             newMap.SetCells(cellsToAdd);
 
