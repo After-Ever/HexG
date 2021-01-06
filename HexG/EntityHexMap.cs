@@ -41,10 +41,10 @@ namespace HexG
             }
 
             replaced = baseMap[position]?.Data;
-            IEntityHexMapEntity replacedEntity = null;
+            IEntityHexMapEntity<T> replacedEntity = null;
 
             if (replaced != null 
-                && replaced is IEntityHexMapEntity re
+                && replaced is IEntityHexMapEntity<T> re
                 && !re.CanBeReplaced)
             {
                 replacedEntity = re;
@@ -56,7 +56,7 @@ namespace HexG
 
             replacedEntity?.Removed(position);
             
-            if (entity is IEntityHexMapEntity e)
+            if (entity is IEntityHexMapEntity<T> e)
             {
                 e.Added(newHandle);
             }
@@ -96,10 +96,10 @@ namespace HexG
             }
 
             replaced = baseMap[target]?.Data;
-            IEntityHexMapEntity replacedEntity = null;
+            IEntityHexMapEntity<T> replacedEntity = null;
 
             if (replaced != null
-                && replaced is IEntityHexMapEntity re
+                && replaced is IEntityHexMapEntity<T> re
                 && !re.CanBeReplaced)
             {
                 replacedEntity = re;
@@ -120,7 +120,7 @@ namespace HexG
 
             replacedEntity?.Removed(target);
 
-            if (moved.Data is IEntityHexMapEntity e)
+            if (moved.Data is IEntityHexMapEntity<T> e)
             {
                 e.Moved(source);
             }
@@ -150,7 +150,7 @@ namespace HexG
             removed = baseMap[position]?.Data;
             baseMap[position] = null;
 
-            if (removed is IEntityHexMapEntity e)
+            if (removed is IEntityHexMapEntity<T> e)
                 e.Removed(position);
 
             return removed != null;
@@ -166,7 +166,7 @@ namespace HexG
         {
             foreach (var cell in baseMap)
             {
-                if (cell.value.Data is IEntityHexMapEntity e)
+                if (cell.value.Data is IEntityHexMapEntity<T> e)
                     e.Removed(cell.index);
             }
 
