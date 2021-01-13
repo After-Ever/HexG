@@ -31,10 +31,9 @@ namespace HexG
         public bool Contains(HexPoint item)
         {
             var toItem = (item - offset).Minimized;
+            var md = toItem.ManhattanDistance();
 
-            return Math.Abs(toItem.X) <= radius
-                && Math.Abs(toItem.Y) <= radius
-                && Math.Abs(toItem.Z) <= radius;
+            return md <= radius;
         }
 
         public void CopyTo(HexPoint[] array, int arrayIndex)

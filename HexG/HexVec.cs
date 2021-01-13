@@ -64,11 +64,12 @@ namespace HexG
         }
 
         /// <summary>
+        /// // TODO Not sure this is the best method, playing around with variants...
         /// Rounds all values towards zero.
         /// </summary>
         /// <returns></returns>
         public HexPoint ToNearestPoint()
-            => new HexPoint((int)X, (int)Y, (int)Z);
+            => new HexPoint((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z));
 
         public Vector2 ToCartesian(HexBasis basis)
             => X * basis.X + Y * basis.Y + Z * basis.Z;

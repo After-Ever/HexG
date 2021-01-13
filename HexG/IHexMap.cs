@@ -62,7 +62,13 @@ namespace HexG
         /// Return a new map with just the cells in <paramref name="region"/>.
         /// </summary>
         /// <returns></returns>
-        IHexMap<T> GetRegion(IRegion region);
+        IHexMap<T> CellsInRegion(IRegion region);
+
+        /// <summary>
+        /// Return an <see cref="IRegion"/> representing every non-empty cell.
+        /// </summary>
+        /// <returns></returns>
+        IRegion GetRegion();
 
         /// <summary>
         /// Return the first cell referenced by <paramref name="indices"/> which passes <paramref name="predicate"/>.

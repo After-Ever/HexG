@@ -7,7 +7,7 @@ namespace HexG
     public class EntityHexMapHandle<T> where T : class
     {
         public readonly EntityHexMap<T> Map;
-        public HexPoint Position { get; protected set; }
+        public HexPoint Position { get; internal set; }
         public readonly T Data;
 
         public EntityHexMapHandle(EntityHexMap<T> map, T data, HexPoint position)
@@ -37,9 +37,10 @@ namespace HexG
         /// 
         /// This operation will cause event methods to be called.
         /// </summary>
-        public bool Remove()
+        public void Remove()
         {
-            return Map.Remove(Position);
+            if (!Map.Remove(Position))
+                throw new Exception("EntityHexMapHandle should never fail to remove!");
         }
     }
 }

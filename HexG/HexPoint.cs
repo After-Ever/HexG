@@ -64,6 +64,9 @@ namespace HexG
             return hashCode;
         }
 
+        public override string ToString()
+            => "(" + X + ", " + Y + ", " + Z + ")";
+
         /// <summary>
         /// Standardize this HexPoint.
         /// A Standard HexPoint is one where z == 0.

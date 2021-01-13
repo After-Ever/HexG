@@ -56,7 +56,7 @@ namespace HexG
             .Select((i) => new Cell<T> { index = i, value = this[i] })
             .First((cell) => predicate(cell));
 
-        public IHexMap<T> GetRegion(IRegion region)
+        public IHexMap<T> CellsInRegion(IRegion region)
         {
             var newMap = new HashHexMap<T>();
             var cellsToAdd = map
@@ -131,5 +131,8 @@ namespace HexG
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
+
+        public IRegion GetRegion()
+            => new Region(this.Select(cell => cell.index));
     }
 }

@@ -5,8 +5,18 @@ using System.Linq;
 
 namespace HexG
 {
+    public delegate void EntityMovedEventReceiver<T>(EntityHexMapHandle<T> entity, HexPoint previousPoint) where T : class;
+    public delegate void EntityAddedEventReceiver<T>(EntityHexMapHandle<T> entity) where T : class;
+    public delegate void EntityRemovedEventReceiver<T>(T entity, HexPoint previousPoint) where T : class;
+
     public class EntityHexMap<T> : IReadOnlyHexMap<EntityHexMapHandle<T>> where T : class
     {
+        // Events:
+        public event EntityAddedEventReceiver<T> Added;
+        public event EntityMovedEventReceiver<T> Moved;
+        public event EntityRemovedEventReceiver<T> Removed;
+
+
         IHexMap<EntityHexMapHandle<T>> baseMap;
         public readonly IRegion allowedRegion;
         public readonly IRegion disallowedRegion;
@@ -14,8 +24,7 @@ namespace HexG
         /// <summary>
         /// Create a new, empty <see cref="EntityHexMap"/>.
         /// </summary>
-        /// <param name="baseMap">The base map that will be used to store the <see cref="T"/>.
-        /// Must be empty.</param>
+        /// <param name="baseMap">The base map that will be used to store the <see cref="T"/>.</param>
         /// <param name="allowedRegion">If provided, entities can only inhabit positions within this region.</param>
         /// <param name="disallowedRegion">If provided, entities cannot inhabit positions within this region.</param>
         public EntityHexMap(IHexMap<T> baseMap, IRegion allowedRegion = null, IRegion disallowedRegion = null)
@@ -23,9 +32,6 @@ namespace HexG
             this.baseMap = baseMap?.Map((cell) => new EntityHexMapHandle<T>(this, cell.value, cell.index)) ?? throw new ArgumentNullException();
             this.allowedRegion = allowedRegion;
             this.disallowedRegion = disallowedRegion;
-            
-            if (!baseMap.IsEmpty)
-                throw new Exception("Base map must be empty!");
         }
 
         public EntityHexMapHandle<T> Add(T entity, HexPoint position, out T replaced)
@@ -61,6 +67,7 @@ namespace HexG
                 e.Added(newHandle);
             }
 
+            Added?.Invoke(newHandle);
             return newHandle;
         }
 
@@ -117,6 +124,7 @@ namespace HexG
 
             baseMap[source] = null;
             baseMap[target] = moved;
+            moved.Position = target;
 
             replacedEntity?.Removed(target);
 
@@ -125,6 +133,7 @@ namespace HexG
                 e.Moved(source);
             }
 
+            Moved?.Invoke(moved, source);
             return true;
         }
 
@@ -153,7 +162,13 @@ namespace HexG
             if (removed is IEntityHexMapEntity<T> e)
                 e.Removed(position);
 
-            return removed != null;
+            if (removed != null)
+            {
+                Removed?.Invoke(removed, position);
+                return true;
+            }
+
+            return false;
         }
 
         public bool Remove(HexPoint position)
@@ -178,7 +193,7 @@ namespace HexG
 
         public bool IsEmpty => baseMap.IsEmpty;
 
-        EntityHexMapHandle<T> IReadOnlyHexMap<EntityHexMapHandle<T>>.this[HexPoint index]
+        public EntityHexMapHandle<T> this[HexPoint index]
             => baseMap[index];
 
         public IEnumerable<Cell<EntityHexMapHandle<T>>> CellsWhere(HexPredicate<EntityHexMapHandle<T>> predicate)
@@ -196,8 +211,8 @@ namespace HexG
         public IHexMap<K> Map<K>(Converter<Cell<EntityHexMapHandle<T>>, K> converter) where K : class
             => baseMap.Map(converter);
 
-        public IHexMap<EntityHexMapHandle<T>> GetRegion(IRegion region)
-            => baseMap.GetRegion(region);
+        public IHexMap<EntityHexMapHandle<T>> CellsInRegion(IRegion region)
+            => baseMap.CellsInRegion(region);
 
         public Cell<EntityHexMapHandle<T>> FirstWhere(HexPredicate<EntityHexMapHandle<T>> predicate, IEnumerable<HexPoint> indices)
             => baseMap.FirstWhere(predicate, indices);
@@ -207,5 +222,8 @@ namespace HexG
 
         IEnumerator IEnumerable.GetEnumerator()
             => GetEnumerator();
+
+        public IRegion GetRegion()
+            => baseMap.GetRegion();
     }
 }
