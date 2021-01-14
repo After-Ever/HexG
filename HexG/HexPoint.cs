@@ -41,7 +41,8 @@ namespace HexG
         /// The sum of the absolute values of each coordinate.
         /// Notably this is not necessarily the minimum! Use <see cref="Minimize"/> to ensure min.
         /// </summary>
-        public int ManhattanDistance() => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public int ManhattanDistance => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public int MinManhattanDistance => Minimized.ManhattanDistance;
 
         public override bool Equals(object obj)
         {
@@ -118,9 +119,9 @@ namespace HexG
                 var zeroY = new HexPoint(X - Y, 0, Z + Y);
                 var zeroZ = new HexPoint(X + Z, Y + Z, 0);
 
-                var zeroXDist = zeroX.ManhattanDistance();
-                var zeroYDist = zeroY.ManhattanDistance();
-                var zeroZDist = zeroZ.ManhattanDistance();
+                var zeroXDist = zeroX.ManhattanDistance;
+                var zeroYDist = zeroY.ManhattanDistance;
+                var zeroZDist = zeroZ.ManhattanDistance;
 
                 if (zeroXDist < zeroYDist)
                 {

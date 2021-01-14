@@ -81,7 +81,6 @@ namespace HexG
 
     public interface IHexMap<T> : IReadOnlyHexMap<T> where T : class
     {
-        // TODO: Is using "new" correct here?
         new T this[HexPoint index] { get; set; }
 
         void SetCells(IEnumerable<Cell<T>> cells);

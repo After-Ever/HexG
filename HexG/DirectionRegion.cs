@@ -5,6 +5,9 @@ using System.Text;
 
 namespace HexG
 {
+    // TODO There are many unimplemented members...
+    //      Also, in general it is a pain to implement all these... Need to standardize the shape regions a bit
+    //      There is probably room for something like abstract class ShapeRegion, which covers all the standard stuff.
     public class DirectionRegion : IRegion
     {
         public int Count => distance + 1;
@@ -24,7 +27,7 @@ namespace HexG
         public bool Contains(HexPoint item)
         {
             var v = (item - origin).Minimized;
-            var d = v.ManhattanDistance();
+            var d = v.ManhattanDistance;
 
             return d <= distance
                 && v == direction.ToHexPoint() * d;

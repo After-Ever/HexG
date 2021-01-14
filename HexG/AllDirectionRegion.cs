@@ -22,7 +22,7 @@ namespace HexG
         public bool Contains(HexPoint item)
         {
             var v = (item - origin).Minimized;
-            var d = v.ManhattanDistance();
+            var d = v.ManhattanDistance;
 
             return d <= distance && (Math.Abs(v.X) == d || Math.Abs(v.Y) == d || Math.Abs(v.Z) == d);
         }

@@ -31,7 +31,7 @@ namespace HexG
         public bool Contains(HexPoint item)
         {
             var toItem = (item - offset).Minimized;
-            var md = toItem.ManhattanDistance();
+            var md = toItem.ManhattanDistance;
 
             return md <= radius;
         }
@@ -142,7 +142,6 @@ namespace HexG
             throw new NotSupportedException();
         }
 
-        // TODO: Good lord this needs some testing!
         class Enumerator : IEnumerator<HexPoint>
         {
             HexagonalRegion region;

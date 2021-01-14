@@ -14,20 +14,7 @@ namespace HexGTest
         {
             foreach(var td in HexVecTestData.testData)
             {
-                Assert.AreEqual(td.manhattanDistance, td.vec.ManhattanDistance(), delta);
-            }
-        }
-
-        [TestMethod]
-        public void Distance()
-        {
-            foreach (var td in HexVecTestData.testData)
-            {
-                Assert.AreEqual(td.distance, td.vec.Distance(HexVecTestData.testBasis), delta);
-                
-                // Other variants of the same vector should be the same distance.
-                Assert.AreEqual(td.distance, td.vec.Standardized.Distance(HexVecTestData.testBasis), delta);
-                Assert.AreEqual(td.distance, td.vec.Minimized.Distance(HexVecTestData.testBasis), delta);
+                Assert.AreEqual(td.manhattanDistance, td.vec.ManhattanDistance, delta);
             }
         }
 

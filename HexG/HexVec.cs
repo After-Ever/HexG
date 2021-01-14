@@ -40,7 +40,6 @@ namespace HexG
         public HexVec(HexBasis basis, float cartesianX, float cartesianY)
             : this(basis, new Vector2(cartesianX, cartesianY)) { }
 
-        // TODO Needs testing!
         /// <summary>
         /// Convert from a cartesian vector to a HexVec, based on <paramref name="basis"/>.
         /// </summary>
@@ -63,36 +62,18 @@ namespace HexG
             Z = 0;
         }
 
-        /// <summary>
-        /// // TODO Not sure this is the best method, playing around with variants...
-        /// Rounds all values towards zero.
-        /// </summary>
-        /// <returns></returns>
         public HexPoint ToNearestPoint()
             => new HexPoint((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z));
 
         public Vector2 ToCartesian(HexBasis basis)
             => X * basis.X + Y * basis.Y + Z * basis.Z;
-    
-        /// <summary>
-        /// Return the straight line distance, given a basis.
-        /// </summary>
-        /// <param name="basis"></param>
-        /// <returns></returns>
-        public float Distance(HexBasis basis)
-        {
-            var a = basis.X * X;
-            var b = basis.Y * Y;
-            var c = basis.Z * Z;
-
-            return (a + b + c).Length();
-        }
 
         /// <summary>
         /// The sum of the absolute values of each coordinate.
         /// Notably this is not necessarily the minimum! Use <see cref="Minimize"/> to ensure min.
         /// </summary>
-        public float ManhattanDistance() => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public float ManhattanDistance => Math.Abs(X) + Math.Abs(Y) + Math.Abs(Z);
+        public float MinManhattanDistance => Minimized.ManhattanDistance;
 
         public override bool Equals(object obj)
         {
@@ -166,9 +147,9 @@ namespace HexG
                 var zeroY = new HexVec(X - Y, 0, Z + Y);
                 var zeroZ = new HexVec(X + Z, Y + Z, 0);
 
-                var zeroXDist = zeroX.ManhattanDistance();
-                var zeroYDist = zeroY.ManhattanDistance();
-                var zeroZDist = zeroZ.ManhattanDistance();
+                var zeroXDist = zeroX.ManhattanDistance;
+                var zeroYDist = zeroY.ManhattanDistance;
+                var zeroZDist = zeroZ.ManhattanDistance;
 
                 if (zeroXDist < zeroYDist)
                 {
