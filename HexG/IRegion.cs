@@ -21,6 +21,35 @@ namespace HexG
         int MaxInDirection(Direction direction);
     }
 
+    public abstract class IReadOnlyRegion : IRegion
+    {
+        public bool IsReadOnly => true;
+        
+        public abstract int Count { get; }
+        public abstract bool Contains(HexPoint item);
+        public abstract void CopyTo(HexPoint[] array, int arrayIndex);
+        public abstract IEnumerator<HexPoint> GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+            => GetEnumerator();
+        public abstract bool IsProperSubsetOf(IEnumerable<HexPoint> other);
+        public abstract bool IsProperSupersetOf(IEnumerable<HexPoint> other);
+        public abstract bool IsSubsetOf(IEnumerable<HexPoint> other);
+        public abstract bool IsSupersetOf(IEnumerable<HexPoint> other);
+        public abstract int MaxInDirection(Direction direction);
+        public abstract bool Overlaps(IEnumerable<HexPoint> other);
+        public abstract bool SetEquals(IEnumerable<HexPoint> other);
+
+
+        public bool Add(HexPoint item) => throw new NotSupportedException();
+        public void Clear() => throw new NotSupportedException();
+        public bool Remove(HexPoint item) => throw new NotSupportedException();
+        public void ExceptWith(IEnumerable<HexPoint> other) => throw new NotSupportedException();
+        public void SymmetricExceptWith(IEnumerable<HexPoint> other) => throw new NotSupportedException();
+        public void IntersectWith(IEnumerable<HexPoint> other) => throw new NotSupportedException();
+        public void UnionWith(IEnumerable<HexPoint> other) => throw new NotSupportedException();
+        void ICollection<HexPoint>.Add(HexPoint item) => throw new NotSupportedException();
+    }
+
     public class Region : IRegion
     {
         HashSet<HexPoint> indices;
