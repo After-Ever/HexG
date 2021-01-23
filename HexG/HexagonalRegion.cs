@@ -5,10 +5,9 @@ using System.Linq;
 
 namespace HexG
 {
-    public class HexagonalRegion : IRegion
+    public class HexagonalRegion : IReadOnlyRegion
     {
         public int Count => 1 + 3 * radius * (radius + 1);
-        public bool IsReadOnly => true;
 
         int radius;
         HexPoint offset;
@@ -36,111 +35,10 @@ namespace HexG
             return md <= radius;
         }
 
-        public void CopyTo(HexPoint[] array, int arrayIndex)
-        {
-            var e = GetEnumerator();
-
-            while (e.MoveNext() && arrayIndex < array.Count())
-            {
-                array[arrayIndex++] = e.Current;
-            }
-        }
-
         public IEnumerator<HexPoint> GetEnumerator() => new Enumerator(this);
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
 
-        public bool IsProperSubsetOf(IEnumerable<HexPoint> other)
-        {
-            HashSet<HexPoint> inOther = new HashSet<HexPoint>(other);
-            return this.All(inOther.Contains) && inOther.Count > Count;
-        }
-
-        public bool IsProperSupersetOf(IEnumerable<HexPoint> other)
-        {
-            HashSet<HexPoint> inOther = new HashSet<HexPoint>();
-
-            foreach (var i in other)
-            {
-                if (!Contains(i))
-                    return false;
-
-                inOther.Add(i);
-            }
-
-            return inOther.Count < Count;
-        }
-
-        public bool IsSubsetOf(IEnumerable<HexPoint> other)
-        {
-            HashSet<HexPoint> inOther = new HashSet<HexPoint>(other);
-            return this.All(inOther.Contains);
-        }
-
-        public bool IsSupersetOf(IEnumerable<HexPoint> other)
-            => other.All(Contains);
-
-        public bool Overlaps(IEnumerable<HexPoint> other)
-            => other.Any(Contains);
-
-        public bool SetEquals(IEnumerable<HexPoint> other)
-        {
-            HashSet<HexPoint> inOther = new HashSet<HexPoint>();
-
-            foreach (var i in other)
-            {
-                if (!Contains(i))
-                    return false;
-
-                inOther.Add(i);
-            }
-
-            return inOther.Count == Count;
-        }
-
         public int MaxInDirection(Direction direction) => radius;
-
-
-        // Readonly, so the following are not supported.
-
-        public bool Add(HexPoint item)
-        {
-            throw new NotSupportedException();
-        }
-
-        void ICollection<HexPoint>.Add(HexPoint item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public bool Remove(HexPoint item)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void Clear()
-        {
-            throw new NotSupportedException();
-        }
-
-        public void UnionWith(IEnumerable<HexPoint> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void IntersectWith(IEnumerable<HexPoint> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void ExceptWith(IEnumerable<HexPoint> other)
-        {
-            throw new NotSupportedException();
-        }
-
-        public void SymmetricExceptWith(IEnumerable<HexPoint> other)
-        {
-            throw new NotSupportedException();
-        }
 
         class Enumerator : IEnumerator<HexPoint>
         {
