@@ -56,7 +56,7 @@ namespace HexG
             .Select((i) => new Cell<T> { index = i, value = this[i] })
             .First((cell) => predicate(cell));
 
-        public IHexMap<T> CellsInRegion(IRegion region)
+        public IHexMap<T> CellsInRegion(IReadOnlyRegion region)
         {
             var newMap = new HashHexMap<T>();
             var cellsToAdd = map

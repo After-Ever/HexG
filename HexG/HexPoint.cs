@@ -182,6 +182,9 @@ namespace HexG
                 a.Z - b.Z);
         }
 
+        public static HexPoint operator -(HexPoint a)
+            => new HexPoint(-a.X, -a.Y, -a.Z);
+
         public static HexPoint operator *(HexPoint v, int s)
         {
             return new HexPoint(s * v.X, s * v.Y, s * v.Z);
