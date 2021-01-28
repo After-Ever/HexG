@@ -50,11 +50,11 @@ namespace HexG
                 this.indices = new HashSet<HexPoint>();
         }
 
-        public int Count =>                                             indices.Count;
-        public bool Add(HexPoint item) =>                               indices.Add(item);
-        public void Clear() =>                                          indices.Clear();
-        public bool Contains(HexPoint item) =>                          indices.Contains(item);
-        public bool Remove(HexPoint item) =>                            indices.Remove(item);
+        public int Count =>                    indices.Count;
+        public bool Add(HexPoint item) =>      indices.Add(item);
+        public void Clear() =>                 indices.Clear();
+        public bool Contains(HexPoint item) => indices.Contains(item);
+        public bool Remove(HexPoint item) =>   indices.Remove(item);
 
         public int MaxInDirection(Direction direction)
         {
@@ -79,11 +79,11 @@ namespace HexG
 
     public static class RegionUtils
     {
-        public static Region UnionRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+        public static Region UnionRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
             => new Region(a.Union(b));
-        public static Region IntersectRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+        public static Region IntersectRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
             => new Region(a.Intersect(b));
-        public static Region SubtractRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+        public static Region SubtractRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
         {
             var r = new Region(a);
             foreach (var p in b)
