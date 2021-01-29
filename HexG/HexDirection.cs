@@ -51,27 +51,98 @@ namespace HexG
         /// Returns which direction the given <see cref="HexVec"/> favors.
         /// </summary>
         /// <param name="vec"></param>
+        /// <param name="otherClosest">If the vector is perfectly between two directions, the one not returned
+        /// will fill this value. Otherwise it will be set to null.</param>
+        /// <returns></returns>
+        public static Direction ClosestDirection(this HexVec vec, out Direction? otherClosest)
+        {
+            if (vec == new HexVec())
+                throw new Exception("Zero vector has no direction.");
+
+            otherClosest = null;
+
+            var v = vec.Minimized;
+
+            if (v.X == 0)
+            {
+                if (v.Y > 0)
+                {
+                    // Either forward, up, or both!
+                    if (v.Y == v.Z)
+                    {
+                        otherClosest = Direction.Up;
+                        return Direction.Forward;
+                    }
+                    return v.Y > v.Z ? Direction.Up : Direction.Forward;
+                }
+                if (v.Y < 0)
+                {
+                    // Either backwards, down, or both!
+                    if (v.Y == v.Z)
+                    {
+                        otherClosest = Direction.Down;
+                        return Direction.Backwards;
+                    }
+                    return v.Y < v.Z ? Direction.Down : Direction.Backwards;
+                }
+                // y == 0, and z != 0 by initial check.
+                return v.Z > 0 ? Direction.Forward : Direction.Backwards;
+            }
+            if (v.Y == 0)
+            {
+                // x != 0
+                if (v.X > 0)
+                {
+                    // Either forward, right, or both!
+                    if (v.X == v.Z)
+                    {
+                        otherClosest = Direction.Forward;
+                        return Direction.Right;
+                    }
+                    return v.X > v.Z ? Direction.Right : Direction.Forward;
+                }
+                // x < 0
+                if (v.X == v.Z)
+                {
+                    otherClosest = Direction.Backwards;
+                    return Direction.Left;
+                }
+                return v.X < v.Z ? Direction.Left : Direction.Backwards;
+            }
+            // x != 0
+            // y != 0
+            // z == 0
+            if (v.X > 0)
+            {
+                // Either up, right, or both!
+                if (v.X == -v.Y)
+                {
+                    otherClosest = Direction.Right;
+                    return Direction.Down;
+                }
+                return v.X > -v.Y ? Direction.Right : Direction.Down; 
+            }
+            // x < 0
+            // y > 0
+            // z == 0
+            // Either up, left, or both!
+            if (v.X == -v.Y)
+            {
+                otherClosest = Direction.Left;
+                return Direction.Up;
+            }
+            return v.X < -v.Y ? Direction.Left : Direction.Up;
+        }
+
+        /// <summary>
+        /// In case of a vector perfectly inbetween two directions, the more clockwise one will be favored. 
+        /// </summary>
+        /// <param name="vec"></param>
         /// <returns></returns>
         public static Direction ClosestDirection(this HexVec vec)
         {
-            // Which ever axis has the largest absolute value when minimized is
-            // the most "favored."
-            var v = vec.Minimized;
-            var x = Math.Abs(v.X);
-            var y = Math.Abs(v.Y);
-            var z = Math.Abs(v.Z);
-
-            if (x > y)
-            {
-                if (x > z)
-                    return v.X > 0 ? Direction.Right : Direction.Left;
-            }
-            else if (y > z)
-            {
-                return v.Y > 0 ? Direction.Up : Direction.Down;
-            }
-
-            return v.Z > 0 ? Direction.Forward : Direction.Backwards;
+            Direction? _;
+            return ClosestDirection(vec, out _);
         }
     }
 }
