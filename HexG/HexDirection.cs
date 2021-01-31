@@ -16,6 +16,8 @@ namespace HexG
 
     public static class HexDirection
     {
+        static Random r = new Random();
+
         public static Direction[] Values = (Direction[])Enum.GetValues(typeof(Direction));
 
         /// <summary>
@@ -143,6 +145,167 @@ namespace HexG
         {
             Direction? _;
             return ClosestDirection(vec, out _);
+        }
+
+        /// <summary>
+        /// Same as <see cref="ClosestDirection(HexVec, out Direction?)"/>, but returns the
+        /// directions in sequence.
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns>The closest directions in counterclockwise order.</returns>
+        public static IEnumerable<Direction> ClosestDirections(this HexVec vec)
+        {
+            Direction? other;
+            yield return ClosestDirection(vec, out other);
+            if (other != null)
+                yield return other.Value;
+        }
+
+        /// <summary>
+        /// Get the Direction vectors this point is between.
+        /// Will return either the two closest directions, or just the one direction 
+        /// on which this point lies, or zero if this is the zero vector.
+        /// </summary>
+        /// <param name="vec"></param>
+        /// <returns>The directions <paramref name="vec"/> is between in
+        /// counterclockwise order.</returns>
+        public static IEnumerable<Direction> ContainingDirections(this HexVec vec)
+        {
+            if (vec == new HexVec())
+                yield break;
+
+            var v = vec.Minimized;
+
+            if (v.X == 0)
+            {
+                if (v.Y > 0)
+                {
+                    if (v.Z == 0)
+                    {
+                        yield return Direction.Up;
+                    }
+                    else
+                    {
+                        yield return Direction.Forward;
+                        yield return Direction.Up;
+                    }
+                }
+                else if (v.Y < 0)
+                {
+                    if (v.Z == 0)
+                    {
+                        yield return Direction.Down;
+                    }
+                    else
+                    {
+                        yield return Direction.Backwards;
+                        yield return Direction.Down;
+                    }
+                }
+                // y == 0, and z != 0 by initial check.
+                else
+                {
+                    yield return v.Z > 0 ? Direction.Forward : Direction.Backwards;
+                }
+            }
+            else if (v.Y == 0)
+            {
+                // x != 0
+                if (v.X > 0)
+                {
+                    if (v.Z == 0)
+                    {
+                        yield return Direction.Right;
+                    }
+                    else
+                    {
+                        yield return Direction.Right;
+                        yield return Direction.Forward;
+                    }
+                }
+                // x < 0
+                else
+                {
+                    if (v.Z == 0)
+                    {
+                        yield return Direction.Left;
+                    }
+                    else
+                    {
+                        yield return Direction.Left;
+                        yield return Direction.Backwards;
+                    }
+                }
+            }
+            // x != 0
+            // y != 0
+            // z == 0
+            else if (v.X > 0)
+            {
+                yield return Direction.Down;
+                yield return Direction.Right;
+            }
+            // x < 0
+            // y > 0
+            // z == 0
+            else
+            {
+                yield return Direction.Up;
+                yield return Direction.Left;
+            }
+
+        }
+
+        /// <summary>
+        /// If <paramref name="vec"/> is perfectly between two direction, the one returned will
+        /// be selected randomly.
+        /// </summary>
+        /// <param name="random"></param>
+        /// <returns></returns>
+        public static Direction RandomClosestDirection(this HexVec vec, Random random = null)
+        {
+            Direction? other;
+            var dir = ClosestDirection(vec, out other);
+
+            if (other == null)
+                return dir;
+
+            return (random ?? r).Next() % 2 == 0 ? dir : other.Value;
+        }
+
+        public static IEnumerable<Direction> DirectionsFromCCW(Direction start)
+        {
+            int s = -1;
+            for (int i = 0; i < 6; ++i)
+            {
+                if (Values[i] == start)
+                {
+                    s = i;
+                }
+
+                if (s != -1)
+                    yield return Values[i];
+            }
+            for (int i = 0; i < s; ++i)
+                yield return Values[i];
+        }
+
+        public static IEnumerable<Direction> DirectionsFromCW(Direction start)
+        {
+
+            int s = -1;
+            for (int i = 5; i >= 0; --i)
+            {
+                if (Values[i] == start)
+                {
+                    s = i;
+                }
+
+                if (s != -1)
+                    yield return Values[i];
+            }
+            for (int i = 5; i >= 0; --i)
+                yield return Values[i];
         }
     }
 }

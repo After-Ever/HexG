@@ -35,25 +35,53 @@ namespace HexG
             return md <= radius;
         }
 
-        public IEnumerator<HexPoint> GetEnumerator() => new Enumerator(this);
-        IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
+        public IEnumerator<HexPoint> GetEnumerator() => new Enumerator(offset, radius);
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public int MaxInDirection(Direction direction) => radius;
 
-        class Enumerator : IEnumerator<HexPoint>
+        internal class Enumerator : IEnumerator<HexPoint>
         {
-            HexagonalRegion region;
+            readonly HexPoint origin;
+            readonly int radius;
+            readonly Direction start;
+            readonly Direction wrapStartDir;
+            readonly int angles;
 
-            int curR;
-            int curI;
             HexPoint curPoint;
+            // The current ring.
+            // Once > radius, enumeration is complete.
+            int currentRing;
+            // Stretches left in current ring.
+            // Resets to angles on wrap.
+            int stretchesLeftInRing;
+            // Hexes left in the current stretch of the current ring.
+            // Resets to currentRing on wrap.
+            int hexesLeftInStretch;
+            IEnumerator<Direction> directionToNext; 
 
-            public HexPoint Current => curI != -1 || curR != 0 ? curPoint : throw new Exception();
+            public HexPoint Current => currentRing <= radius ? curPoint : throw new Exception();
             object IEnumerator.Current => Current;
 
-            public Enumerator(HexagonalRegion region)
+            /// <summary>
+            /// 
+            /// </summary>
+            /// <param name="origin">Center of region.</param>
+            /// <param name="radius">How many rings out to go.</param>
+            /// <param name="start">Direction vector to start rings from.</param>
+            /// <param name="angles">How many 60 degree sections to span rings.</param>
+            public Enumerator(
+                HexPoint origin,
+                int radius,
+                Direction start = Direction.Right,
+                int angles = 6)
             {
-                this.region = region;
+                this.origin = origin;
+                this.radius = radius;
+                this.angles = angles;
+                this.start = start;
+
+                wrapStartDir = HexDirection.DirectionsFromCCW(start).ElementAt(2);
                 Reset();
             }
 
@@ -61,54 +89,40 @@ namespace HexG
 
             public bool MoveNext()
             {
-                var lastI = curI;
-                var lastR = curR;
-                
-                if (curR == 0)
+                if (hexesLeftInStretch-- == 0)
                 {
-                    if (++curI == 1)
+                    if (--stretchesLeftInRing == 0)
                     {
-                        if (region.radius == 0)
+                        if (++currentRing > radius)
                             return false;
 
-                        curI = 0;
-                        curR = 1;
+                        curPoint = origin + start.ToHexPoint() * currentRing;
+                        stretchesLeftInRing = angles;
+                        hexesLeftInStretch = currentRing;
+                        directionToNext = HexDirection.DirectionsFromCCW(wrapStartDir).GetEnumerator();
+                        directionToNext.MoveNext();
+                        return true;
                     }
-                }
-                else
-                {
-                    if (++curI == curR * 6)
-                    {
-                        curI = 0;
 
-                        if (++curR > region.radius)
-                            return false;
-                    }
+                    hexesLeftInStretch = currentRing - 1;
+                    if (!directionToNext.MoveNext())
+                        throw new Exception("Should never be reached.");
                 }
 
-
-                curPoint = AdvancePoint(curPoint, lastI, lastR);
+                curPoint += directionToNext.Current.ToHexPoint();
                 return true;
             }
 
             public void Reset()
             {
-                curPoint = region.offset;
-                curR = 0;
-                curI = -1;
-            }
+                currentRing = 0;
+                stretchesLeftInRing = 1;
+                hexesLeftInStretch = 1;
+                directionToNext = HexDirection.DirectionsFromCCW(wrapStartDir).GetEnumerator();
+                directionToNext.MoveNext();
 
-            HexPoint AdvancePoint(HexPoint point, int lastIndex, int lastRadius)
-            {
-                // If lastRadius is 0, then this is the first advance from the center, so just out-shift.
-                if (lastRadius == 0)
-                    return lastIndex == -1 ? point : point + HexDirection.Values[4].ToHexPoint();
-
-                // If the last index completed the last perimeter, move back to the start of the perimeter, and out-shift.
-                if (lastIndex + 1 == lastRadius * 6)
-                    return point + HexDirection.Values[5].ToHexPoint() + HexDirection.Values[4].ToHexPoint();
-
-                return point + HexDirection.Values[lastIndex / lastRadius].ToHexPoint();
+                curPoint = origin;
+                curPoint -= wrapStartDir.ToHexPoint();
             }
         }
     }
