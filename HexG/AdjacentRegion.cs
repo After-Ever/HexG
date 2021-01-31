@@ -10,7 +10,7 @@ namespace HexG
         public HexPoint Origin;
         public int Count => 6;
 
-        public AdjacentRegion(HexPoint? origin)
+        public AdjacentRegion(HexPoint? origin = null)
         {
             Origin = origin ?? HexPoint.Zero;
         }
