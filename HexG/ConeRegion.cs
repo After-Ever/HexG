@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+<<<<<<< HEAD
 using System.Linq;
+=======
+using System.Text;
+>>>>>>> 8059c319e6e576558841b4fa6504425f76e973c2
 
 namespace HexG
 {
@@ -77,7 +81,7 @@ namespace HexG
             }
 
             throw new Exception("Couldn't find end!");
-        }
+	}
 
         public int MaxInDirection(Direction direction)
         {
