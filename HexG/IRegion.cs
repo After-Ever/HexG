@@ -79,17 +79,11 @@ namespace HexG
 
     public static class RegionUtils
     {
-        public static Region UnionRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
-            => new Region(a.Union(b));
-        public static Region IntersectRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
-            => new Region(a.Intersect(b));
-        public static Region SubtractRegion(this IReadOnlyRegion a, IEnumerable<HexPoint> b)
-        {
-            var r = new Region(a);
-            foreach (var p in b)
-                r.Remove(p);
-
-            return r;
-        }
+        public static IReadOnlyRegion UnionRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+            => new UnionRegion(a, b);
+        public static IReadOnlyRegion IntersectRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+            => new IntersectRegion(a, b);
+        public static IReadOnlyRegion SubtractRegion(this IReadOnlyRegion a, IReadOnlyRegion b)
+            => new SubtractRegion(a, b);
     }
 }
