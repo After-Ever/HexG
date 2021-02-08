@@ -11,7 +11,7 @@ namespace HexG
         internal readonly HexPoint a;
         internal readonly HexPoint? b;
 
-        internal LinePoint(HexPoint a, HexPoint? b = null)
+        public LinePoint(HexPoint a, HexPoint? b = null)
         {
             this.a = a;
             this.b = b;
@@ -61,7 +61,7 @@ namespace HexG
 
             if (start != end)
                 directionVectors = (end - start).ToVec()
-                    .ClosestDirections()
+                    .ContainingDirections()
                     .Select(dir => dir.ToHexPoint())
                     .ToList();
         }

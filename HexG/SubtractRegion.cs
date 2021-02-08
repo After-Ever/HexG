@@ -17,8 +17,7 @@ namespace HexG
         }
 
         public int Count
-            => baseRegionA.Count + baseRegionB.Count - baseRegionA.Intersect(baseRegionB).Count();
-
+            => this.Count();
         public bool Contains(HexPoint point)
             => baseRegionA.Contains(point) && !baseRegionB.Contains(point);
 
