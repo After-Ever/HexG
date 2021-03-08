@@ -62,7 +62,7 @@ namespace HexG
         /// Return a new map with just the cells in <paramref name="region"/>.
         /// </summary>
         /// <returns></returns>
-        IHexMap<T> CellsInRegion(IReadOnlyRegion region);
+        IEnumerable<Cell<T>> CellsInRegion(IReadOnlyRegion region);
 
         /// <summary>
         /// Return an <see cref="IRegion"/> representing every non-empty cell.

@@ -56,16 +56,11 @@ namespace HexG
             .Select((i) => new Cell<T> { index = i, value = this[i] })
             .First((cell) => predicate(cell));
 
-        public IHexMap<T> CellsInRegion(IReadOnlyRegion region)
+        public IEnumerable<Cell<T>> CellsInRegion(IReadOnlyRegion region)
         {
-            var newMap = new HashHexMap<T>();
-            var cellsToAdd = map
+            return map
                 .Where((kvp) => region.Contains(kvp.Key))
                 .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value });
-
-            newMap.SetCells(cellsToAdd);
-
-            return newMap;
         }
 
         public IHexMap<K> Map<K>(Converter<Cell<T>, K> converter) where K : class
