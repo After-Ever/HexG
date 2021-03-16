@@ -9,7 +9,7 @@ namespace HexG
     /// This means each HexVec belongs to an equivalence class of the form: (x - c, y - c, c) where c is any real number.
     /// When the c is zero, we call this a standard HexVec.
     /// 
-    /// The third value is included to allow for more convinient specification, and to allow the minimum manhattan distance
+    /// The third value is included to allow for more convenient specification, and to allow the minimum manhattan distance
     /// to always be expressible.
     /// </summary>
     public struct HexVec

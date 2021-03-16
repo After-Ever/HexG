@@ -11,9 +11,9 @@ namespace HexG
 
         public HexBasis(Vector2 x, Vector2 y, Vector2 z)
         {
-            // TODO: Should probably have some tolorance...
+            // TODO: Should probably have some tolerance...
             if (x + y != z)
-                throw new Exception("These basis vectors don't meet requirments: " + x + " " + y + " " + z + " " + x + y);
+                throw new Exception("These basis vectors don't meet requirements: " + x + " " + y + " " + z + " " + x + y);
 
             X = x;
             Y = y;
