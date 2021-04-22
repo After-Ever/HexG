@@ -33,6 +33,9 @@ namespace HexG
 
         public bool IsEmpty => map.Count == 0;
 
+        public Cell<T> CellAt(HexPoint p)
+            => new Cell<T> { index = p, value = this[p] };
+
         public IEnumerable<Cell<T>> CellsWhere(HexPredicate<T> predicate)
             => map
             .Select((kvp) => new Cell<T> { index = kvp.Key, value = kvp.Value })

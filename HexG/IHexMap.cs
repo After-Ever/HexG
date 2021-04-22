@@ -19,6 +19,8 @@ namespace HexG
 
         bool IsEmpty { get; }
 
+        Cell<T> CellAt(HexPoint p);
+
         /// <summary>
         /// Returns all the cells which pass <paramref name="predicate"/>.
         /// </summary>

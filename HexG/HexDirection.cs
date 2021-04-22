@@ -14,6 +14,16 @@ namespace HexG
         Down,       // -Y
     }
 
+    public enum DirectionOffset
+    {
+        None = 0,
+        OneCCW = 1,
+        TwoCCW = 2,
+        Opposite = 3,
+        OneCW = 5,
+        TwoCW = 4,
+    }
+
     public static class HexDirection
     {
         static Random r = new Random();
@@ -306,6 +316,26 @@ namespace HexG
             }
             for (int i = 5; i >= 0; --i)
                 yield return Values[i];
+        }
+
+        public static Direction Rotate(this Direction direction, DirectionOffset offset)
+        {
+            var i = ((int)offset + (int)direction) % Values.Length;
+            return Values[i];
+        }
+
+        public static Direction Rotate(this Direction direction, int ccwSteps)
+        {
+            var i = (ccwSteps + (int)direction) % Values.Length;
+            return Values[i];
+        }
+
+        public static Direction RotateCW(this Direction direction, int cwSteps)
+        {
+            cwSteps = Values.Length - (cwSteps % Values.Length);
+
+            var i = (cwSteps + (int)direction) % Values.Length;
+            return Values[i];
         }
     }
 }
