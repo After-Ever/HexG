@@ -6,13 +6,26 @@
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${TargetDir}/${ProjectName}.dll /home/ben/azure_rain/Assets/Libs/</command>
+        </Command>
+        <Command>
+          <type>AfterBuild</type>
+          <command>cp ${TargetDir}/${ProjectName}.pdb /home/ben/azure_rain/Assets/Libs/</command>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FibonacciHeap" Version="1.1.8" />
+    <PackageReference Include="FibonacciHeap" Version="2.0.2" />
     <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp &quot;$(ProjectDir)$(OutDir)$(TargetName).dll&quot;  /n/game_development/LibraryCollection/&#xD;&#xA;cp &quot;$(ProjectDir)$(OutDir)$(TargetName).pdb&quot;  /n/game_development/LibraryCollection/&#xD;&#xA;&#xD;&#xA;cp &quot;$(ProjectDir)$(OutDir)$(TargetName).dll&quot;  /n/game_development/azure_rain/azure_rain/Assets/Libs&#xD;&#xA;cp &quot;$(ProjectDir)$(OutDir)$(TargetName).pdb&quot;  /n/game_development/azure_rain/azure_rain/Assets/Libs" />
-  </Target>
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\AEUtils\AEUtils.csproj" />
+  </ItemGroup>
 </Project>

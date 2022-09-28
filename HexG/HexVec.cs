@@ -62,11 +62,13 @@ namespace HexG
             Z = 0;
         }
 
+        // TODO This should give the hex this point falls within, which could vary 
+        //      based on the specific shape of the hex... Should take all this into account...
         public HexPoint ToNearestPoint()
             => new HexPoint((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z));
 
         public Vector2 ToCartesian(HexBasis basis)
-            => X * basis.X + Y * basis.Y + Z * basis.Z;
+            => (X + Z) * basis.X + (Y + Z) * basis.Y;
 
         /// <summary>
         /// The sum of the absolute values of each coordinate.

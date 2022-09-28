@@ -40,6 +40,8 @@ namespace HexG
 
     public class Region : IRegion
     {
+        public static EmptyRegion Empty = new EmptyRegion();
+
         HashSet<HexPoint> indices;
 
         public Region(IEnumerable<HexPoint> indices = null)

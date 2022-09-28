@@ -26,14 +26,14 @@ namespace HexG
             Y = y;
             Z = z;
         }
-
+            
         public HexVec ToVec()
         {
             return new HexVec(X, Y, Z);
         }
 
         public Vector2 ToCartesian(HexBasis basis)
-        => X * basis.X + Y * basis.Y + Z * basis.Z;
+        => (X + Z) * basis.X + (Y + Z) * basis.Y;
 
         public static readonly HexPoint Zero = new HexPoint();
 
@@ -147,20 +147,22 @@ namespace HexG
         /// <returns></returns>
         public int InDirection(Direction direction)
         {
+            var minned = Minimized;
+
             switch (direction)
             {
                 case Direction.Right:
-                    return X;
+                    return minned.X;
                 case Direction.Left:
-                    return -X;
+                    return -minned.X;
                 case Direction.Up:
-                    return Y;
+                    return minned.Y;
                 case Direction.Down:
-                    return -Y;
+                    return -minned.Y;
                 case Direction.Forward:
-                    return Z;
+                    return minned.Z;
                 case Direction.Backwards:
-                    return -Z;
+                    return -minned.Z;
                 default:
                     throw new NotSupportedException("Invalid direction");
             }
